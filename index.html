@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>لعبتي</title>
+
+<style>
+body {
+  margin: 0;
+  background: #111;
+  color: white;
+  font-family: Arial;
+  text-align: center;
+}
+
+h1 {
+  margin: 20px;
+}
+
+#game {
+  width: 100%;
+  max-width: 500px;
+  height: 500px;
+  margin: auto;
+  background: #222;
+  position: relative;
+  overflow: hidden;
+  border: 3px solid #08f;
+}
+
+#player {
+  position: absolute;
+  bottom: 20px;
+  left: 45%;
+  width: 50px;
+  height: 80px;
+  background: red;
+  border-radius: 10px;
+}
+
+#play {
+  padding: 15px 30px;
+  font-size: 20px;
+  border: 0;
+  border-radius: 10px;
+  background: #087cff;
+  color: white;
+}
+</style>
+</head>
+
+<body>
+
+<h1>🚗 لعبتي</h1>
+
+<button id="play">ابدأ اللعب</button>
+
+<div id="game"></div>
+
+<script>
+const game = document.getElementById("game");
+const play = document.getElementById("play");
+
+play.onclick = function () {
+
+  const player = document.createElement("div");
+  player.id = "player";
+
+  game.appendChild(player);
+
+  play.style.display = "none";
+};
+</script>
+
+</body>
+</html>
