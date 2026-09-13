@@ -1,34 +1,67 @@
 <!DOCTYPE html>
-<html lang="ar">
+<html lang="ar" dir="rtl">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>لعبتي</title>
+
+<title>🚗 لعبتي</title>
 
 <style>
+* {
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+}
+
 body {
   margin: 0;
   background: #111;
   color: white;
-  font-family: Arial;
+  font-family: Arial, sans-serif;
   text-align: center;
+  overflow: hidden;
 }
 
 h1 {
-  margin: 20px;
+  margin: 12px 0;
+  font-size: 28px;
+}
+
+#score {
+  font-size: 22px;
+  margin-bottom: 10px;
 }
 
 #game {
-  width: 100%;
+  width: 95%;
   max-width: 500px;
   height: 500px;
   margin: auto;
-  background: #222;
+  background:
+    repeating-linear-gradient(
+      to bottom,
+      #333 0px,
+      #333 45px,
+      #444 45px,
+      #444 90px
+    );
   position: relative;
   overflow: hidden;
   border: 3px solid #08f;
+  border-radius: 10px;
 }
 
+/* خطوط الطريق */
+.line {
+  position: absolute;
+  width: 8px;
+  height: 70px;
+  background: white;
+  left: 50%;
+  transform: translateX(-50%);
+  opacity: 0.8;
+}
+
+/* العربية */
 #player {
   position: absolute;
   bottom: 20px;
@@ -36,16 +69,98 @@ h1 {
   width: 50px;
   height: 80px;
   background: red;
-  border-radius: 10px;
+  border-radius: 10px 10px 6px 6px;
+  border: 3px solid white;
+  z-index: 10;
 }
 
-#play {
-  padding: 15px 30px;
+/* زجاج العربية */
+#player::before {
+  content: "";
+  position: absolute;
+  top: 10px;
+  left: 8px;
+  width: 28px;
+  height: 20px;
+  background: #69d5ff;
+  border-radius: 5px;
+}
+
+/* العوائق */
+.enemy {
+  position: absolute;
+  width: 50px;
+  height: 80px;
+  background: yellow;
+  border-radius: 10px;
+  border: 3px solid black;
+  z-index: 5;
+}
+
+.enemy::before {
+  content: "";
+  position: absolute;
+  top: 10px;
+  left: 8px;
+  width: 28px;
+  height: 20px;
+  background: #333;
+  border-radius: 5px;
+}
+
+/* زر البداية */
+#play,
+#restart {
+  padding: 14px 28px;
   font-size: 20px;
   border: 0;
   border-radius: 10px;
   background: #087cff;
   color: white;
+  margin: 8px;
+}
+
+/* شاشة الخسارة */
+#gameOver {
+  display: none;
+  position: absolute;
+  inset: 0;
+  background: rgba(0,0,0,0.8);
+  z-index: 50;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+}
+
+#gameOver h2 {
+  font-size: 38px;
+  margin: 10px;
+}
+
+#finalScore {
+  font-size: 24px;
+}
+
+/* أزرار الموبايل */
+.controls {
+  width: 95%;
+  max-width: 500px;
+  margin: 12px auto;
+  display: flex;
+  justify-content: space-between;
+  gap: 15px;
+}
+
+.control {
+  flex: 1;
+  padding: 18px;
+  font-size: 28px;
+  border: 0;
+  border-radius: 15px;
+  background: #087cff;
+  color: white;
+  user-select: none;
+  touch-action: manipulation;
 }
 </style>
 </head>
@@ -54,23 +169,320 @@ h1 {
 
 <h1>🚗 لعبتي</h1>
 
+<div id="score">النقاط: 0</div>
+
 <button id="play">ابدأ اللعب</button>
 
-<div id="game"></div>
+<div id="game">
+
+  <div id="gameOver">
+    <h2>💥 خسرت!</h2>
+    <div id="finalScore">النقاط: 0</div>
+    <button id="restart">🔄 العب مرة أخرى</button>
+  </div>
+
+</div>
+
+<div class="controls">
+  <button class="control" id="left">⬅️</button>
+  <button class="control" id="right">➡️</button>
+</div>
 
 <script>
+
 const game = document.getElementById("game");
 const play = document.getElementById("play");
+const restart = document.getElementById("restart");
+const scoreText = document.getElementById("score");
+const gameOver = document.getElementById("gameOver");
+const finalScore = document.getElementById("finalScore");
 
-play.onclick = function () {
+const leftButton = document.getElementById("left");
+const rightButton = document.getElementById("right");
 
-  const player = document.createElement("div");
+let player;
+let enemies = [];
+let lines = [];
+
+let score = 0;
+let speed = 4;
+let gameRunning = false;
+
+let moveLeft = false;
+let moveRight = false;
+
+let animation;
+
+
+/* بدء اللعبة */
+function startGame() {
+
+  gameRunning = true;
+
+  score = 0;
+  speed = 4;
+
+  scoreText.textContent = "النقاط: 0";
+
+  play.style.display = "none";
+  gameOver.style.display = "none";
+
+  // تنظيف اللعبة
+  document.querySelectorAll(".enemy").forEach(e => e.remove());
+  document.querySelectorAll(".line").forEach(e => e.remove());
+
+  enemies = [];
+  lines = [];
+
+  // إنشاء العربية
+  player = document.createElement("div");
   player.id = "player";
 
   game.appendChild(player);
 
-  play.style.display = "none";
+  // خطوط الطريق
+  for (let i = 0; i < 6; i++) {
+
+    const line = document.createElement("div");
+
+    line.className = "line";
+
+    line.style.top = (i * 100 - 100) + "px";
+
+    game.appendChild(line);
+
+    lines.push(line);
+  }
+
+  animation = requestAnimationFrame(gameLoop);
+
+  // إنشاء أول سيارة
+  createEnemy();
+}
+
+
+/* إنشاء سيارة عدو */
+function createEnemy() {
+
+  if (!gameRunning) return;
+
+  const enemy = document.createElement("div");
+
+  enemy.className = "enemy";
+
+  const maxLeft = game.clientWidth - 55;
+
+  enemy.style.left =
+    Math.floor(Math.random() * maxLeft) + "px";
+
+  enemy.style.top = "-100px";
+
+  game.appendChild(enemy);
+
+  enemies.push(enemy);
+
+  // إنشاء السيارة التالية
+  setTimeout(createEnemy, Math.max(500, 1200 - score * 10));
+}
+
+
+/* الحلقة الرئيسية */
+function gameLoop() {
+
+  if (!gameRunning) return;
+
+  // تحريك اللاعب
+  let playerLeft = player.offsetLeft;
+
+  if (moveLeft) {
+    playerLeft -= 7;
+  }
+
+  if (moveRight) {
+    playerLeft += 7;
+  }
+
+  // منع العربية من الخروج
+  const maxLeft = game.clientWidth - player.offsetWidth;
+
+  if (playerLeft < 0) {
+    playerLeft = 0;
+  }
+
+  if (playerLeft > maxLeft) {
+    playerLeft = maxLeft;
+  }
+
+  player.style.left = playerLeft + "px";
+
+
+  // تحريك خطوط الطريق
+  lines.forEach(line => {
+
+    let top = line.offsetTop;
+
+    top += speed;
+
+    if (top > game.clientHeight) {
+      top = -80;
+    }
+
+    line.style.top = top + "px";
+
+  });
+
+
+  // تحريك السيارات
+  enemies.forEach((enemy, index) => {
+
+    let top = enemy.offsetTop;
+
+    top += speed;
+
+    enemy.style.top = top + "px";
+
+
+    // إذا خرجت السيارة
+    if (top > game.clientHeight) {
+
+      enemy.remove();
+
+      enemies.splice(index, 1);
+
+      score++;
+
+      scoreText.textContent =
+        "النقاط: " + score;
+
+      // زيادة السرعة تدريجيًا
+      if (score % 5 === 0) {
+        speed += 0.5;
+      }
+    }
+
+
+    // فحص التصادم
+    if (isColliding(player, enemy)) {
+      endGame();
+    }
+
+  });
+
+
+  animation = requestAnimationFrame(gameLoop);
+}
+
+
+/* فحص التصادم */
+function isColliding(a, b) {
+
+  if (!a || !b) return false;
+
+  const aRect = a.getBoundingClientRect();
+  const bRect = b.getBoundingClientRect();
+
+  return !(
+    aRect.bottom < bRect.top ||
+    aRect.top > bRect.bottom ||
+    aRect.right < bRect.left ||
+    aRect.left > bRect.right
+  );
+}
+
+
+/* إنهاء اللعبة */
+function endGame() {
+
+  gameRunning = false;
+
+  cancelAnimationFrame(animation);
+
+  finalScore.textContent =
+    "النقاط: " + score;
+
+  gameOver.style.display = "flex";
+}
+
+
+/* زر البداية */
+play.onclick = function() {
+  startGame();
 };
+
+
+/* إعادة اللعب */
+restart.onclick = function() {
+  startGame();
+};
+
+
+/* التحكم بالكيبورد */
+document.addEventListener("keydown", function(e) {
+
+  if (e.key === "ArrowLeft") {
+    moveLeft = true;
+  }
+
+  if (e.key === "ArrowRight") {
+    moveRight = true;
+  }
+
+});
+
+
+document.addEventListener("keyup", function(e) {
+
+  if (e.key === "ArrowLeft") {
+    moveLeft = false;
+  }
+
+  if (e.key === "ArrowRight") {
+    moveRight = false;
+  }
+
+});
+
+
+/* أزرار الموبايل */
+leftButton.addEventListener("touchstart", function(e) {
+
+  e.preventDefault();
+  moveLeft = true;
+
+}, {passive:false});
+
+
+leftButton.addEventListener("touchend", function(e) {
+
+  e.preventDefault();
+  moveLeft = false;
+
+}, {passive:false});
+
+
+rightButton.addEventListener("touchstart", function(e) {
+
+  e.preventDefault();
+  moveRight = true;
+
+}, {passive:false});
+
+
+rightButton.addEventListener("touchend", function(e) {
+
+  e.preventDefault();
+  moveRight = false;
+
+}, {passive:false});
+
+
+/* دعم الضغط العادي */
+leftButton.onmousedown = () => moveLeft = true;
+leftButton.onmouseup = () => moveLeft = false;
+
+rightButton.onmousedown = () => moveRight = true;
+rightButton.onmouseup = () => moveRight = false;
+
 </script>
 
 </body>
