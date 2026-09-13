@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>سباق السرعة 3D</title>
+<style>
+html,body{margin:0;overflow:hidden;background:#87ceeb;font-family:Arial,sans-serif;touch-action:none}
+#hud{position:fixed;top:12px;left:12px;right:12px;display:flex;justify-content:space-between;z-index:5;color:white;font-weight:bold;text-shadow:2px 2px 3px #000;font-size:18px}
+#msg{position:fixed;top:45%;left:50%;transform:translate(-50%,-50%);z-index:6;color:#fff;text-align:center;text-shadow:2px 2px 5px #000;font-size:28px;font-weight:bold}
+#controls{position:fixed;bottom:18px;left:0;right:0;display:flex;justify-content:space-between;padding:0 25px;z-index:7}
+button{width:78px;height:78px;border:2px solid #fff;border-radius:50%;background:#0008;color:#fff;font-size:30px;font-weight:bold}
+#nitro{width:100px;height:58px;border-radius:18px;font-size:18px;background:#1565c0cc}
+#help{position:fixed;bottom:4px;left:50%;transform:translateX(-50%);color:#fff;text-shadow:1px 1px 3px #000;z-index:5;font-size:12px}
+</style>
+</head>
+<body>
+<div id="hud"><span>🏁 اللفة: <b id="lap">1</b>/3</span><span>⚡ السرعة: <b id="speed">0</b></span><span>🏆 المركز: <b id="pos">1</b></span></div>
+<div id="msg">سباق السرعة 3D<br><small>اضغط ▶ للبدء</small></div>
+<div id="controls">
+  <div><button id="left">◀</button><button id="right">▶</button></div>
+  <button id="nitro">NITRO</button>
+</div>
+<div id="help">حرّك السيارة يمين/يسار — استخدم النيترو للتسارع</div>
+<script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
+<script>
+const scene=new THREE.Scene();
+scene.background=new THREE.Color(0x87ceeb);
+scene.fog=new THREE.Fog(0x87ceeb,80,260);
+const camera=new THREE.PerspectiveCamera(65,innerWidth/innerHeight,.1,500);
+const renderer=new THREE.WebGLRenderer({antialias:true});
+renderer.setSize(innerWidth,innerHeight); renderer.setPixelRatio(Math.min(devicePixelRatio,2));
+renderer.shadowMap.enabled=true; document.body.appendChild(renderer.domElement);
+
+scene.add(new THREE.HemisphereLight(0xffffff,0x557755,2));
+const sun=new THREE.DirectionalLight(0xffffff,2); sun.position.set(30,60,20); sun.castShadow=true; scene.add(sun);
+
+const ground=new THREE.Mesh(new THREE.PlaneGeometry(500,500),new THREE.MeshStandardMaterial({color:0x3d8c3d}));
+ground.rotation.x=-Math.PI/2; ground.receiveShadow=true; scene.add(ground);
+
+// Long straight track
+const road=new THREE.Mesh(new THREE.BoxGeometry(18,.12,500),new THREE.MeshStandardMaterial({color:0x333333}));
+road.position.y=.06; road.receiveShadow=true; scene.add(road);
+for(let z=-240;z<250;z+=12){
+  const line=new THREE.Mesh(new THREE.BoxGeometry(.35,.04,6),new THREE.MeshStandardMaterial({color:0xffffff}));
+  line.position.set(0,.14,z); scene.add(line);
+}
+for(const x of [-9,9]){
+  const edge=new THREE.Mesh(new THREE.BoxGeometry(.25,.15,500),new THREE.MeshStandardMaterial({color:0xffcc00}));
+  edge.position.set(x,.13,0); scene.add(edge);
+}
+
+// Trees
+for(let i=0;i<80;i++){
+  const z=-240+Math.random()*480, side=Math.random()<.5?-1:1;
+  const trunk=new THREE.Mesh(new THREE.CylinderGeometry(.25,.35,2,8),new THREE.MeshStandardMaterial({color:0x7b4a22}));
+  trunk.position.set(side*(14+Math.random()*15),1,z);
+  const crown=new THREE.Mesh(new THREE.SphereGeometry(1.7+Math.random(),10,8),new THREE.MeshStandardMaterial({color:0x176b2c}));
+  crown.position.set(trunk.position.x,3,z); scene.add(trunk,crown);
+}
+
+function car(color){
+  const g=new THREE.Group();
+  const body=new THREE.Mesh(new THREE.BoxGeometry(2.5,.65,4),new THREE.MeshStandardMaterial({color,metalness:.2,roughness:.5}));
+  body.position.y=.8; body.castShadow=true; g.add(body);
+  const cabin=new THREE.Mesh(new THREE.BoxGeometry(1.7,.65,1.7),new THREE.MeshStandardMaterial({color:0x1b2b3a,roughness:.2,metalness:.3}));
+  cabin.position.set(0,1.35,.25); cabin.castShadow=true; g.add(cabin);
+  for(const x of [-1.25,1.25])for(const z of [-1.35,1.35]){
+    const w=new THREE.Mesh(new THREE.CylinderGeometry(.38,.38,.28,16),new THREE.MeshStandardMaterial({color:0x111111}));
+    w.rotation.z=Math.PI/2; w.position.set(x,.45,z); g.add(w);
+  }
+  return g;
+}
+const player=car(0x1565ff); player.position.set(0,0,8); scene.add(player);
+const rivals=[];
+[-4,4,-2,2].forEach((x,i)=>{let c=car([0xe53935,0xff9800,0x9c27b0,0x00a86b][i]);c.position.set(x,0,-25-i*18);scene.add(c);rivals.push(c)});
+
+let running=false, speed=0, nitro=false, distance=0, lap=1;
+const keys={left:false,right:false};
+function bind(id,k){const b=document.getElementById(id);['touchstart','mousedown'].forEach(e=>b.addEventListener(e,ev=>{ev.preventDefault();keys[k]=true}));['touchend','mouseup','mouseleave'].forEach(e=>b.addEventListener(e,ev=>{ev.preventDefault();keys[k]=false}));}
+bind('left','left');bind('right','right');
+const nb=document.getElementById('nitro');
+['touchstart','mousedown'].forEach(e=>nb.addEventListener(e,ev=>{ev.preventDefault();nitro=true}));
+['touchend','mouseup','mouseleave'].forEach(e=>nb.addEventListener(e,ev=>{ev.preventDefault();nitro=false}));
+document.getElementById('msg').addEventListener('click',()=>{running=true;document.getElementById('msg').style.display='none'});
+
+let last=performance.now();
+function animate(t){
+ requestAnimationFrame(animate); const dt=Math.min((t-last)/1000,.05); last=t;
+ if(running){
+   const target=nitro?1.45:.95; speed += (target-speed)*dt*2;
+   if(keys.left) player.position.x-=9*dt;
+   if(keys.right) player.position.x+=9*dt;
+   player.position.x=Math.max(-7.2,Math.min(7.2,player.position.x));
+   distance+=speed*30*dt;
+   if(distance>450){distance=0;lap++; if(lap>3){lap=3;running=false;document.getElementById('msg').innerHTML='🏆 فزت!<br><small>اضغط هنا لإعادة السباق</small>';document.getElementById('msg').style.display='block'}}
+   rivals.forEach((r,i)=>{r.position.z+=speed*(18+i*2)*dt;if(r.position.z>25)r.position.z=-180-i*20});
+ }
+ camera.position.lerp(new THREE.Vector3(player.position.x*.35,6,player.position.z+12),.08);
+ camera.lookAt(player.position.x,1,player.position.z-18);
+ document.getElementById('speed').textContent=Math.round(speed*180);
+ document.getElementById('lap').textContent=lap;
+ renderer.render(scene,camera);
+}
+animate(performance.now());
+addEventListener('resize',()=>{camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight)});
+</script>
+</body>
+</html>
