@@ -4,729 +4,401 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>🏎️ سباق الشوارع</title>
+<title>🚗 سباق السيارات</title>
 
 <style>
 * {
   box-sizing: border-box;
-  -webkit-tap-highlight-color: transparent;
 }
 
 body {
   margin: 0;
-  background: #111;
-  color: white;
   font-family: Arial, sans-serif;
+  background: linear-gradient(135deg, #080808, #202020);
+  color: white;
   text-align: center;
 }
 
 h1 {
-  margin: 15px 0;
+  margin: 20px 0 5px;
+  color: #00eaff;
 }
 
-h2 {
-  margin-top: 10px;
+.subtitle {
+  color: #aaa;
+  margin-bottom: 20px;
 }
 
-/* =========================
-   الجراج
-========================= */
-
+/* الجراج */
 #garage {
-  width: 95%;
-  max-width: 600px;
-  margin: auto;
+  padding: 20px;
 }
 
 .cars {
   display: flex;
-  gap: 15px;
-  overflow-x: auto;
-  padding: 10px;
+  justify-content: center;
+  gap: 20px;
+  flex-wrap: wrap;
 }
 
-.car {
-  min-width: 240px;
-  background: #222;
-  border: 3px solid #444;
-  border-radius: 15px;
-  padding: 10px;
-  transition: .2s;
+/* كارت العربية */
+.car-card {
+  width: min(90vw, 380px);
+  background: #151515;
+  border: 3px solid #333;
+  border-radius: 20px;
+  padding: 12px;
+  cursor: pointer;
+  transition: 0.25s;
+  box-shadow: 0 8px 25px rgba(0,0,0,.5);
 }
 
-.car.selected {
-  border-color: #08f;
-  box-shadow: 0 0 20px #087cff;
+.car-card:hover {
+  transform: translateY(-8px);
+  border-color: #00eaff;
+}
+
+.car-card.selected {
+  border-color: #00ff66;
+  box-shadow: 0 0 25px #00ff66;
   transform: scale(1.03);
 }
 
-.car img {
+.car-card img {
   width: 100%;
-  height: 150px;
+  height: 230px;
   object-fit: cover;
-  border-radius: 10px;
+  border-radius: 14px;
 }
 
-.car h3 {
-  margin: 8px;
+.car-name {
+  font-size: 22px;
+  font-weight: bold;
+  margin: 12px 0;
 }
 
-.car button {
-  width: 100%;
-  padding: 12px;
-  border: 0;
-  border-radius: 10px;
-  background: #087cff;
-  color: white;
-  font-size: 18px;
+.select-text {
+  color: #aaa;
 }
 
-#selectedCar {
-  margin: 10px;
+/* زر البداية */
+#startBtn {
+  margin-top: 25px;
+  padding: 15px 40px;
   font-size: 20px;
-}
-
-#startGame {
-  padding: 15px 35px;
-  font-size: 21px;
-  border: 0;
-  border-radius: 12px;
-  background: #16a34a;
+  font-weight: bold;
   color: white;
-  margin: 10px;
-}
-
-/* =========================
-   اللعبة
-========================= */
-
-#gameScreen {
+  background: #00aaff;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
   display: none;
 }
 
-#info {
-  display: flex;
-  justify-content: center;
-  gap: 18px;
-  font-size: 18px;
-  margin: 8px;
+#startBtn:hover {
+  background: #00ddff;
 }
 
-#game {
-  width: 95%;
-  max-width: 500px;
-  height: 500px;
-  margin: auto;
-  position: relative;
-  overflow: hidden;
-  border: 3px solid #08f;
-  border-radius: 12px;
+/* السباق */
+#race {
+  display: none;
+  padding: 20px;
+}
 
+.track {
+  position: relative;
+  width: 100%;
+  max-width: 900px;
+  height: 350px;
+  margin: 20px auto;
+  overflow: hidden;
+  border: 4px solid white;
+  border-radius: 15px;
   background:
     repeating-linear-gradient(
-      to right,
-      #292929 0px,
-      #292929 100px,
-      #252525 100px,
-      #252525 200px
+      90deg,
+      #333 0px,
+      #333 50px,
+      #444 50px,
+      #444 100px
     );
 }
 
-#game::before,
-#game::after {
-  content: "";
+.finish {
   position: absolute;
+  right: 30px;
   top: 0;
-  width: 7px;
+  width: 10px;
   height: 100%;
-  background: white;
-  z-index: 2;
+  background: repeating-linear-gradient(
+    0deg,
+    white 0px,
+    white 20px,
+    black 20px,
+    black 40px
+  );
 }
 
-#game::before {
-  left: 18px;
-}
-
-#game::after {
-  right: 18px;
-}
-
-.line {
+.race-car {
   position: absolute;
-  width: 7px;
-  height: 65px;
-  background: white;
-  top: -100px;
-  opacity: .8;
-  z-index: 1;
-}
-
-/* العربية التي اخترتها */
-#player {
-  position: absolute;
-  bottom: 20px;
-  left: 45%;
-  width: 70px;
-  height: 90px;
-  object-fit: cover;
+  left: 20px;
+  width: 120px;
   border-radius: 10px;
-  border: 3px solid white;
-  z-index: 10;
+  transition: left 0.1s linear;
 }
 
-/* السيارات المنافسة */
-.enemy {
-  position: absolute;
-  width: 55px;
-  height: 85px;
-  background: linear-gradient(#ffd92f, #d99d00);
-  border-radius: 12px;
-  border: 3px solid #111;
-  z-index: 5;
+#playerCar {
+  top: 70px;
 }
 
-.enemy::before {
-  content: "";
-  position: absolute;
-  top: 9px;
-  left: 8px;
-  width: 30px;
-  height: 23px;
-  background: #222;
-  border-radius: 6px;
+#enemyCar {
+  top: 220px;
 }
 
-/* العملة */
-.coin {
-  position: absolute;
-  width: 30px;
-  height: 30px;
-  border-radius: 50%;
-  background: gold;
-  border: 3px solid white;
-  color: #7a5200;
-  font-weight: bold;
-  font-size: 18px;
-  line-height: 24px;
-  z-index: 6;
-}
-
-/* الأزرار */
 .controls {
-  width: 95%;
-  max-width: 500px;
-  margin: 10px auto;
-  display: flex;
-  gap: 15px;
+  margin-top: 15px;
 }
 
-.control {
-  flex: 1;
-  padding: 17px;
-  font-size: 28px;
-  border: 0;
-  border-radius: 15px;
-  background: #087cff;
+.controls button {
+  padding: 15px 25px;
+  margin: 5px;
+  border: none;
+  border-radius: 10px;
+  font-size: 20px;
+  cursor: pointer;
+}
+
+#gas {
+  background: #00cc55;
   color: white;
-  touch-action: manipulation;
 }
 
 #backGarage {
-  padding: 10px 20px;
-  border: 0;
-  border-radius: 10px;
   background: #555;
   color: white;
-  font-size: 17px;
-}
-
-/* شاشة الخسارة */
-#gameOver {
-  display: none;
-  position: absolute;
-  inset: 0;
-  background: rgba(0,0,0,.88);
-  z-index: 50;
-  align-items: center;
-  justify-content: center;
-  flex-direction: column;
-}
-
-#gameOver h2 {
-  font-size: 36px;
-}
-
-#restart {
-  padding: 13px 25px;
-  border: 0;
-  border-radius: 10px;
-  background: #087cff;
-  color: white;
-  font-size: 19px;
 }
 </style>
 </head>
 
 <body>
 
-<!-- =========================
-     الجراج
-========================= -->
+<!-- ================= الجراج ================= -->
 
-<div id="garage">
+<section id="garage">
 
-  <h1>🏎️ جراج السيارات</h1>
+  <h1>🏁 جراج السيارات</h1>
 
-  <h2>اختر سيارتك 🚗</h2>
+  <div class="subtitle">
+    اختر السيارة التي تريد السباق بها
+  </div>
 
   <div class="cars">
 
-    <div class="car selected" id="car1Box">
-
-      <img src="car1.jpg">
-
-      <h3>🖤 السيارة السوداء</h3>
-
-      <button onclick="selectCar(1)">
-        اختيار السيارة
-      </button>
-
+    <!-- العربية الأولى -->
+    <div class="car-card" onclick="selectCar(1, this)">
+      <img src="images/car1.jpg" alt="السيارة الأولى">
+      <div class="car-name">🚗 Mercedes SLS</div>
+      <div class="select-text">اضغط لاختيار السيارة</div>
     </div>
 
-
-    <div class="car" id="car2Box">
-
-      <img src="car2.jpg">
-
-      <h3>🤍 السيارة الفضية</h3>
-
-      <button onclick="selectCar(2)">
-        اختيار السيارة
-      </button>
-
+    <!-- العربية الثانية -->
+    <div class="car-card" onclick="selectCar(2, this)">
+      <img src="images/car2.jpg" alt="السيارة الثانية">
+      <div class="car-name">🏎️ Mercedes AMG</div>
+      <div class="select-text">اضغط لاختيار السيارة</div>
     </div>
 
   </div>
 
-  <div id="selectedCar">
-    السيارة المختارة: 🖤 السوداء
-  </div>
-
-  <button id="startGame" onclick="startGame()">
+  <button id="startBtn" onclick="startRace()">
     🏁 ابدأ السباق
   </button>
 
-</div>
+</section>
 
 
-<!-- =========================
-     شاشة اللعبة
-========================= -->
+<!-- ================= السباق ================= -->
 
-<div id="gameScreen">
+<section id="race">
 
-  <h1>🏁 السباق</h1>
+  <h1>🏁 السباق بدأ!</h1>
 
-  <div id="info">
-    <span id="score">🏆 0</span>
-    <span id="coins">🪙 0</span>
-    <span id="lives">❤️❤️❤️</span>
-  </div>
+  <div id="selectedName"></div>
 
-  <button id="backGarage" onclick="backToGarage()">
-    🚗 الجراج
-  </button>
+  <div class="track">
 
-  <div id="game">
+    <div class="finish"></div>
 
-    <div id="gameOver">
+    <img id="playerCar" class="race-car">
 
-      <h2>💥 انتهى السباق!</h2>
-
-      <div id="finalScore">
-        النقاط: 0
-      </div>
-
-      <div id="finalCoins">
-        العملات: 0
-      </div>
-
-      <button id="restart" onclick="startGame()">
-        🔄 العب مرة أخرى
-      </button>
-
-    </div>
+    <img
+      id="enemyCar"
+      class="race-car"
+      src="images/car2.jpg"
+    >
 
   </div>
 
   <div class="controls">
 
-    <button class="control" id="left">
-      ⬅️
+    <button id="gas" onclick="accelerate()">
+      🟢 بنزين
     </button>
 
-    <button class="control" id="right">
-      ➡️
+    <button id="backGarage" onclick="backToGarage()">
+      🔙 الجراج
     </button>
 
   </div>
 
-</div>
+</section>
 
 
 <script>
 
-/* =========================
-   اختيار السيارة
-========================= */
+let selectedCar = null;
+let playerPosition = 20;
+let enemyPosition = 20;
 
-let selectedCar = 1;
 
-function selectCar(number) {
+/* اختيار السيارة */
+function selectCar(carNumber, element) {
 
-  selectedCar = number;
+  selectedCar = carNumber;
 
-  document
-    .querySelectorAll(".car")
-    .forEach(car => car.classList.remove("selected"));
+  // إزالة التحديد من كل السيارات
+  document.querySelectorAll(".car-card").forEach(card => {
+    card.classList.remove("selected");
+  });
 
-  document
-    .getElementById("car" + number + "Box")
-    .classList.add("selected");
+  // تحديد السيارة
+  element.classList.add("selected");
 
-  if (number === 1) {
-
-    document.getElementById("selectedCar").textContent =
-      "السيارة المختارة: 🖤 السوداء";
-
-  } else {
-
-    document.getElementById("selectedCar").textContent =
-      "السيارة المختارة: 🤍 الفضية";
-
-  }
+  // إظهار زر البداية
+  document.getElementById("startBtn").style.display = "inline-block";
 }
 
 
-/* =========================
-   عناصر اللعبة
-========================= */
+/* بدء السباق */
+function startRace() {
 
-const game = document.getElementById("game");
-
-const scoreText =
-  document.getElementById("score");
-
-const coinsText =
-  document.getElementById("coins");
-
-const livesText =
-  document.getElementById("lives");
-
-const gameOver =
-  document.getElementById("gameOver");
-
-const finalScore =
-  document.getElementById("finalScore");
-
-const finalCoins =
-  document.getElementById("finalCoins");
-
-const leftButton =
-  document.getElementById("left");
-
-const rightButton =
-  document.getElementById("right");
-
-let player;
-
-let enemies = [];
-let coins = [];
-let lines = [];
-
-let score = 0;
-let coinCount = 0;
-let lives = 3;
-
-let speed = 4;
-
-let gameRunning = false;
-
-let moveLeft = false;
-let moveRight = false;
-
-let animation;
-let enemyTimer;
-let coinTimer;
-
-
-/* =========================
-   بدء اللعبة
-========================= */
-
-function startGame() {
+  if (!selectedCar) {
+    alert("اختار عربية الأول 🚗");
+    return;
+  }
 
   document.getElementById("garage").style.display = "none";
+  document.getElementById("race").style.display = "block";
 
-  document.getElementById("gameScreen").style.display = "block";
-
-  gameRunning = true;
-
-  score = 0;
-  coinCount = 0;
-  lives = 3;
-  speed = 4;
-
-  scoreText.textContent = "🏆 0";
-  coinsText.textContent = "🪙 0";
-  livesText.textContent = "❤️❤️❤️";
-
-  gameOver.style.display = "none";
-
-  clearTimeout(enemyTimer);
-  clearTimeout(coinTimer);
-
-  document
-    .querySelectorAll(".enemy")
-    .forEach(e => e.remove());
-
-  document
-    .querySelectorAll(".coin")
-    .forEach(e => e.remove());
-
-  document
-    .querySelectorAll(".line")
-    .forEach(e => e.remove());
-
-  document
-    .querySelectorAll("#player")
-    .forEach(e => e.remove());
-
-  enemies = [];
-  coins = [];
-  lines = [];
-
-
-  /* إنشاء صورة اللاعب */
-
-  player = document.createElement("img");
-
-  player.id = "player";
+  let playerCar = document.getElementById("playerCar");
 
   if (selectedCar === 1) {
-
-    player.src = "car1.jpg";
-
+    playerCar.src = "images/car1.jpg";
+    document.getElementById("selectedName").innerText =
+      "أنت تقود Mercedes SLS 🚗";
   } else {
-
-    player.src = "car2.jpg";
-
+    playerCar.src = "images/car2.jpg";
+    document.getElementById("selectedName").innerText =
+      "أنت تقود Mercedes AMG 🏎️";
   }
 
-  game.appendChild(player);
+  playerPosition = 20;
+  enemyPosition = 20;
+
+  playerCar.style.left = playerPosition + "px";
+  document.getElementById("enemyCar").style.left =
+    enemyPosition + "px";
+
+  // بداية حركة الخصم
+  moveEnemy();
+}
 
 
-  /* خطوط الطريق */
+/* البنزين */
+function accelerate() {
 
-  for (let i = 0; i < 7; i++) {
+  playerPosition += 25;
 
-    const line1 =
-      document.createElement("div");
+  let trackWidth =
+    document.querySelector(".track").clientWidth;
 
-    line1.className = "line";
+  let carWidth = 120;
 
-    line1.style.left = "33%";
-
-    line1.style.top =
-      (i * 90 - 100) + "px";
-
-    game.appendChild(line1);
-
-    lines.push(line1);
-
-
-    const line2 =
-      document.createElement("div");
-
-    line2.className = "line";
-
-    line2.style.left = "66%";
-
-    line2.style.top =
-      (i * 90 - 100) + "px";
-
-    game.appendChild(line2);
-
-    lines.push(line2);
+  if (playerPosition > trackWidth - carWidth - 30) {
+    playerPosition = trackWidth - carWidth - 30;
   }
 
+  document.getElementById("playerCar").style.left =
+    playerPosition + "px";
 
-  createEnemy();
-
-  createCoin();
-
-  animation =
-    requestAnimationFrame(gameLoop);
+  checkWinner();
 }
 
 
-/* =========================
-   سيارة منافسة
-========================= */
+/* حركة الخصم */
+function moveEnemy() {
 
-function createEnemy() {
+  if (
+    document.getElementById("race").style.display === "none"
+  ) {
+    return;
+  }
 
-  if (!gameRunning) return;
+  enemyPosition += Math.random() * 12;
 
-  const enemy =
-    document.createElement("div");
+  let trackWidth =
+    document.querySelector(".track").clientWidth;
 
-  enemy.className = "enemy";
+  let carWidth = 120;
 
-  const maxLeft =
-    game.clientWidth - 80;
+  if (enemyPosition > trackWidth - carWidth - 30) {
+    enemyPosition = trackWidth - carWidth - 30;
+  }
 
-  enemy.style.left =
-    Math.floor(
-      25 + Math.random() * (maxLeft - 25)
-    ) + "px";
+  document.getElementById("enemyCar").style.left =
+    enemyPosition + "px";
 
-  enemy.style.top = "-100px";
+  checkWinner();
 
-  game.appendChild(enemy);
-
-  enemies.push(enemy);
-
-  enemyTimer =
-    setTimeout(
-      createEnemy,
-      Math.max(450, 1100 - score * 8)
-    );
+  setTimeout(moveEnemy, 400);
 }
 
 
-/* =========================
-   العملات
-========================= */
+/* تحديد الفائز */
+function checkWinner() {
 
-function createCoin() {
+  let trackWidth =
+    document.querySelector(".track").clientWidth;
 
-  if (!gameRunning) return;
+  let finish =
+    trackWidth - 170;
 
-  const coin =
-    document.createElement("div");
+  if (playerPosition >= finish) {
 
-  coin.className = "coin";
+    alert("🏆 فزت بالسباق!");
 
-  coin.textContent = "$";
+    backToGarage();
 
-  coin.style.left =
-    Math.floor(
-      Math.random() *
-      (game.clientWidth - 40)
-    ) + "px";
+  } else if (enemyPosition >= finish) {
 
-  coin.style.top = "-50px";
+    alert("😢 خسرت! حاول مرة أخرى");
 
-  game.appendChild(coin);
-
-  coins.push(coin);
-
-  coinTimer =
-    setTimeout(createCoin, 1300);
+    backToGarage();
+  }
 }
 
 
-/* =========================
-   اللعبة
-========================= */
+/* الرجوع للجراج */
+function backToGarage() {
 
-function gameLoop() {
+  document.getElementById("race").style.display = "none";
+  document.getElementById("garage").style.display = "block";
 
-  if (!gameRunning) return;
+  playerPosition = 20;
+  enemyPosition = 20;
+}
 
+</script>
 
-  /* حركة اللاعب */
-
-  let left = player.offsetLeft;
-
-  if (moveLeft)
-    left -= 8;
-
-  if (moveRight)
-    left += 8;
-
-  const maxLeft =
-    game.clientWidth -
-    player.offsetWidth -
-    20;
-
-  if (left < 20)
-    left = 20;
-
-  if (left > maxLeft)
-    left = maxLeft;
-
-  player.style.left =
-    left + "px";
-
-
-  /* خطوط الطريق */
-
-  lines.forEach(line => {
-
-    let top =
-      line.offsetTop + speed;
-
-    if (top > game.clientHeight)
-      top = -80;
-
-    line.style.top =
-      top + "px";
-  });
-
-
-  /* السيارات */
-
-  enemies.forEach((enemy, index) => {
-
-    let top =
-      enemy.offsetTop + speed;
-
-    enemy.style.top =
-      top + "px";
-
-
-    if (top > game.clientHeight) {
-
-      enemy.remove();
-
-      enemies.splice(index, 1);
-
-      score++;
-
-      scoreText.textContent =
-        "🏆 " + score;
-
-      if (score % 5 === 0)
-        speed += .5;
-    }
-
-
-    if (isColliding(player, enemy)) {
-
-      enemy.remove();
-
-      enemies.splice(index, 1);
-
-      loseLife();
-    }
-
-  });
-
-
-  /* العملات */
-
-  coins.forEach((coin, index) => {
-
-    let top
+</body>
+</html>
