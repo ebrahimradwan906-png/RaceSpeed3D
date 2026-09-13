@@ -18,12 +18,90 @@ body {
   color: white;
   font-family: Arial, sans-serif;
   text-align: center;
-  overflow: hidden;
 }
 
 h1 {
-  margin: 8px 0;
-  font-size: 26px;
+  margin: 15px 0;
+}
+
+h2 {
+  margin-top: 10px;
+}
+
+/* =========================
+   الجراج
+========================= */
+
+#garage {
+  width: 95%;
+  max-width: 600px;
+  margin: auto;
+}
+
+.cars {
+  display: flex;
+  gap: 15px;
+  overflow-x: auto;
+  padding: 10px;
+}
+
+.car {
+  min-width: 240px;
+  background: #222;
+  border: 3px solid #444;
+  border-radius: 15px;
+  padding: 10px;
+  transition: .2s;
+}
+
+.car.selected {
+  border-color: #08f;
+  box-shadow: 0 0 20px #087cff;
+  transform: scale(1.03);
+}
+
+.car img {
+  width: 100%;
+  height: 150px;
+  object-fit: cover;
+  border-radius: 10px;
+}
+
+.car h3 {
+  margin: 8px;
+}
+
+.car button {
+  width: 100%;
+  padding: 12px;
+  border: 0;
+  border-radius: 10px;
+  background: #087cff;
+  color: white;
+  font-size: 18px;
+}
+
+#selectedCar {
+  margin: 10px;
+  font-size: 20px;
+}
+
+#startGame {
+  padding: 15px 35px;
+  font-size: 21px;
+  border: 0;
+  border-radius: 12px;
+  background: #16a34a;
+  color: white;
+  margin: 10px;
+}
+
+/* =========================
+   اللعبة
+========================= */
+
+#gameScreen {
+  display: none;
 }
 
 #info {
@@ -31,7 +109,7 @@ h1 {
   justify-content: center;
   gap: 18px;
   font-size: 18px;
-  margin-bottom: 8px;
+  margin: 8px;
 }
 
 #game {
@@ -54,15 +132,14 @@ h1 {
     );
 }
 
-/* حواف الطريق */
 #game::before,
 #game::after {
   content: "";
   position: absolute;
   top: 0;
-  width: 8px;
+  width: 7px;
   height: 100%;
-  background: #fff;
+  background: white;
   z-index: 2;
 }
 
@@ -74,7 +151,6 @@ h1 {
   right: 18px;
 }
 
-/* خطوط الطريق */
 .line {
   position: absolute;
   width: 7px;
@@ -85,54 +161,28 @@ h1 {
   z-index: 1;
 }
 
-/* اللاعب */
+/* العربية التي اخترتها */
 #player {
   position: absolute;
   bottom: 20px;
   left: 45%;
-  width: 52px;
-  height: 82px;
-  background: linear-gradient(#ff3333, #a90000);
-  border-radius: 12px 12px 7px 7px;
+  width: 70px;
+  height: 90px;
+  object-fit: cover;
+  border-radius: 10px;
   border: 3px solid white;
   z-index: 10;
-  box-shadow: 0 0 12px rgba(255,0,0,.7);
 }
 
-/* زجاج */
-#player::before {
-  content: "";
-  position: absolute;
-  top: 9px;
-  left: 8px;
-  width: 30px;
-  height: 23px;
-  background: linear-gradient(#baf1ff, #2588aa);
-  border-radius: 6px;
-  border: 2px solid #111;
-}
-
-/* العجلات */
-#player::after {
-  content: "●     ●";
-  position: absolute;
-  color: #111;
-  font-size: 22px;
-  bottom: 5px;
-  left: -4px;
-  white-space: nowrap;
-}
-
-/* السيارات */
+/* السيارات المنافسة */
 .enemy {
   position: absolute;
-  width: 52px;
-  height: 82px;
+  width: 55px;
+  height: 85px;
   background: linear-gradient(#ffd92f, #d99d00);
   border-radius: 12px;
   border: 3px solid #111;
   z-index: 5;
-  box-shadow: 0 0 8px rgba(255,220,0,.5);
 }
 
 .enemy::before {
@@ -153,7 +203,7 @@ h1 {
   height: 30px;
   border-radius: 50%;
   background: gold;
-  border: 3px solid #fff2a0;
+  border: 3px solid white;
   color: #7a5200;
   font-weight: bold;
   font-size: 18px;
@@ -162,41 +212,6 @@ h1 {
 }
 
 /* الأزرار */
-#play,
-#restart {
-  padding: 13px 26px;
-  font-size: 20px;
-  border: 0;
-  border-radius: 12px;
-  background: #087cff;
-  color: white;
-  margin: 6px;
-  cursor: pointer;
-}
-
-/* شاشة الخسارة */
-#gameOver {
-  display: none;
-  position: absolute;
-  inset: 0;
-  background: rgba(0,0,0,.86);
-  z-index: 50;
-  align-items: center;
-  justify-content: center;
-  flex-direction: column;
-}
-
-#gameOver h2 {
-  font-size: 38px;
-  margin: 8px;
-}
-
-#finalScore {
-  font-size: 22px;
-  margin: 8px;
-}
-
-/* أزرار الهاتف */
 .controls {
   width: 95%;
   max-width: 500px;
@@ -207,69 +222,224 @@ h1 {
 
 .control {
   flex: 1;
-  padding: 16px;
+  padding: 17px;
   font-size: 28px;
   border: 0;
   border-radius: 15px;
   background: #087cff;
   color: white;
-  user-select: none;
   touch-action: manipulation;
 }
 
-.control:active {
-  transform: scale(.95);
-  background: #005dcc;
+#backGarage {
+  padding: 10px 20px;
+  border: 0;
+  border-radius: 10px;
+  background: #555;
+  color: white;
+  font-size: 17px;
+}
+
+/* شاشة الخسارة */
+#gameOver {
+  display: none;
+  position: absolute;
+  inset: 0;
+  background: rgba(0,0,0,.88);
+  z-index: 50;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+}
+
+#gameOver h2 {
+  font-size: 36px;
+}
+
+#restart {
+  padding: 13px 25px;
+  border: 0;
+  border-radius: 10px;
+  background: #087cff;
+  color: white;
+  font-size: 19px;
 }
 </style>
 </head>
 
 <body>
 
-<h1>🏎️ سباق الشوارع</h1>
+<!-- =========================
+     الجراج
+========================= -->
 
-<div id="info">
-  <span id="score">🏆 0</span>
-  <span id="coins">🪙 0</span>
-  <span id="lives">❤️❤️❤️</span>
+<div id="garage">
+
+  <h1>🏎️ جراج السيارات</h1>
+
+  <h2>اختر سيارتك 🚗</h2>
+
+  <div class="cars">
+
+    <div class="car selected" id="car1Box">
+
+      <img src="car1.jpg">
+
+      <h3>🖤 السيارة السوداء</h3>
+
+      <button onclick="selectCar(1)">
+        اختيار السيارة
+      </button>
+
+    </div>
+
+
+    <div class="car" id="car2Box">
+
+      <img src="car2.jpg">
+
+      <h3>🤍 السيارة الفضية</h3>
+
+      <button onclick="selectCar(2)">
+        اختيار السيارة
+      </button>
+
+    </div>
+
+  </div>
+
+  <div id="selectedCar">
+    السيارة المختارة: 🖤 السوداء
+  </div>
+
+  <button id="startGame" onclick="startGame()">
+    🏁 ابدأ السباق
+  </button>
+
 </div>
 
-<button id="play">▶️ ابدأ اللعب</button>
 
-<div id="game">
+<!-- =========================
+     شاشة اللعبة
+========================= -->
 
-  <div id="gameOver">
-    <h2>💥 انتهت اللعبة!</h2>
-    <div id="finalScore">النقاط: 0</div>
-    <div id="finalCoins">العملات: 0</div>
-    <button id="restart">🔄 العب مرة أخرى</button>
+<div id="gameScreen">
+
+  <h1>🏁 السباق</h1>
+
+  <div id="info">
+    <span id="score">🏆 0</span>
+    <span id="coins">🪙 0</span>
+    <span id="lives">❤️❤️❤️</span>
+  </div>
+
+  <button id="backGarage" onclick="backToGarage()">
+    🚗 الجراج
+  </button>
+
+  <div id="game">
+
+    <div id="gameOver">
+
+      <h2>💥 انتهى السباق!</h2>
+
+      <div id="finalScore">
+        النقاط: 0
+      </div>
+
+      <div id="finalCoins">
+        العملات: 0
+      </div>
+
+      <button id="restart" onclick="startGame()">
+        🔄 العب مرة أخرى
+      </button>
+
+    </div>
+
+  </div>
+
+  <div class="controls">
+
+    <button class="control" id="left">
+      ⬅️
+    </button>
+
+    <button class="control" id="right">
+      ➡️
+    </button>
+
   </div>
 
 </div>
 
-<div class="controls">
-  <button class="control" id="left">⬅️</button>
-  <button class="control" id="right">➡️</button>
-</div>
 
 <script>
 
+/* =========================
+   اختيار السيارة
+========================= */
+
+let selectedCar = 1;
+
+function selectCar(number) {
+
+  selectedCar = number;
+
+  document
+    .querySelectorAll(".car")
+    .forEach(car => car.classList.remove("selected"));
+
+  document
+    .getElementById("car" + number + "Box")
+    .classList.add("selected");
+
+  if (number === 1) {
+
+    document.getElementById("selectedCar").textContent =
+      "السيارة المختارة: 🖤 السوداء";
+
+  } else {
+
+    document.getElementById("selectedCar").textContent =
+      "السيارة المختارة: 🤍 الفضية";
+
+  }
+}
+
+
+/* =========================
+   عناصر اللعبة
+========================= */
+
 const game = document.getElementById("game");
-const play = document.getElementById("play");
-const restart = document.getElementById("restart");
 
-const scoreText = document.getElementById("score");
-const coinsText = document.getElementById("coins");
-const livesText = document.getElementById("lives");
+const scoreText =
+  document.getElementById("score");
 
-const gameOver = document.getElementById("gameOver");
-const finalScore = document.getElementById("finalScore");
-const finalCoins = document.getElementById("finalCoins");
+const coinsText =
+  document.getElementById("coins");
 
-const leftButton = document.getElementById("left");
-const rightButton = document.getElementById("right");
+const livesText =
+  document.getElementById("lives");
+
+const gameOver =
+  document.getElementById("gameOver");
+
+const finalScore =
+  document.getElementById("finalScore");
+
+const finalCoins =
+  document.getElementById("finalCoins");
+
+const leftButton =
+  document.getElementById("left");
+
+const rightButton =
+  document.getElementById("right");
 
 let player;
+
 let enemies = [];
 let coins = [];
 let lines = [];
@@ -279,6 +449,7 @@ let coinCount = 0;
 let lives = 3;
 
 let speed = 4;
+
 let gameRunning = false;
 
 let moveLeft = false;
@@ -289,8 +460,15 @@ let enemyTimer;
 let coinTimer;
 
 
-/* بدء اللعبة */
+/* =========================
+   بدء اللعبة
+========================= */
+
 function startGame() {
+
+  document.getElementById("garage").style.display = "none";
+
+  document.getElementById("gameScreen").style.display = "block";
 
   gameRunning = true;
 
@@ -303,167 +481,226 @@ function startGame() {
   coinsText.textContent = "🪙 0";
   livesText.textContent = "❤️❤️❤️";
 
-  play.style.display = "none";
   gameOver.style.display = "none";
 
   clearTimeout(enemyTimer);
   clearTimeout(coinTimer);
 
-  document.querySelectorAll(".enemy").forEach(e => e.remove());
-  document.querySelectorAll(".coin").forEach(e => e.remove());
-  document.querySelectorAll(".line").forEach(e => e.remove());
-  document.querySelectorAll("#player").forEach(e => e.remove());
+  document
+    .querySelectorAll(".enemy")
+    .forEach(e => e.remove());
+
+  document
+    .querySelectorAll(".coin")
+    .forEach(e => e.remove());
+
+  document
+    .querySelectorAll(".line")
+    .forEach(e => e.remove());
+
+  document
+    .querySelectorAll("#player")
+    .forEach(e => e.remove());
 
   enemies = [];
   coins = [];
   lines = [];
 
-  /* إنشاء اللاعب */
-  player = document.createElement("div");
+
+  /* إنشاء صورة اللاعب */
+
+  player = document.createElement("img");
+
   player.id = "player";
+
+  if (selectedCar === 1) {
+
+    player.src = "car1.jpg";
+
+  } else {
+
+    player.src = "car2.jpg";
+
+  }
+
   game.appendChild(player);
 
-  /* إنشاء خطوط الطريق */
+
+  /* خطوط الطريق */
+
   for (let i = 0; i < 7; i++) {
 
-    const line = document.createElement("div");
+    const line1 =
+      document.createElement("div");
 
-    line.className = "line";
+    line1.className = "line";
 
-    line.style.left = "33%";
-    line.style.top = (i * 90 - 100) + "px";
+    line1.style.left = "33%";
 
-    game.appendChild(line);
-    lines.push(line);
+    line1.style.top =
+      (i * 90 - 100) + "px";
 
-    const line2 = document.createElement("div");
+    game.appendChild(line1);
+
+    lines.push(line1);
+
+
+    const line2 =
+      document.createElement("div");
 
     line2.className = "line";
 
     line2.style.left = "66%";
-    line2.style.top = (i * 90 - 100) + "px";
+
+    line2.style.top =
+      (i * 90 - 100) + "px";
 
     game.appendChild(line2);
+
     lines.push(line2);
   }
 
+
   createEnemy();
+
   createCoin();
 
-  animation = requestAnimationFrame(gameLoop);
+  animation =
+    requestAnimationFrame(gameLoop);
 }
 
 
-/* إنشاء سيارة */
+/* =========================
+   سيارة منافسة
+========================= */
+
 function createEnemy() {
 
   if (!gameRunning) return;
 
-  const enemy = document.createElement("div");
+  const enemy =
+    document.createElement("div");
 
   enemy.className = "enemy";
 
-  const minLeft = 25;
-  const maxLeft = game.clientWidth - 80;
+  const maxLeft =
+    game.clientWidth - 80;
 
   enemy.style.left =
     Math.floor(
-      minLeft + Math.random() * (maxLeft - minLeft)
+      25 + Math.random() * (maxLeft - 25)
     ) + "px";
 
   enemy.style.top = "-100px";
 
   game.appendChild(enemy);
+
   enemies.push(enemy);
 
-  enemyTimer = setTimeout(
-    createEnemy,
-    Math.max(400, 1000 - score * 8)
-  );
+  enemyTimer =
+    setTimeout(
+      createEnemy,
+      Math.max(450, 1100 - score * 8)
+    );
 }
 
 
-/* إنشاء عملة */
+/* =========================
+   العملات
+========================= */
+
 function createCoin() {
 
   if (!gameRunning) return;
 
-  const coin = document.createElement("div");
+  const coin =
+    document.createElement("div");
 
   coin.className = "coin";
+
   coin.textContent = "$";
 
-  const maxLeft = game.clientWidth - 55;
-
   coin.style.left =
-    Math.floor(Math.random() * maxLeft) + "px";
+    Math.floor(
+      Math.random() *
+      (game.clientWidth - 40)
+    ) + "px";
 
   coin.style.top = "-50px";
 
   game.appendChild(coin);
+
   coins.push(coin);
 
-  coinTimer = setTimeout(createCoin, 1300);
+  coinTimer =
+    setTimeout(createCoin, 1300);
 }
 
 
-/* الحلقة الرئيسية */
+/* =========================
+   اللعبة
+========================= */
+
 function gameLoop() {
 
   if (!gameRunning) return;
 
+
   /* حركة اللاعب */
-  let playerLeft = player.offsetLeft;
 
-  if (moveLeft) {
-    playerLeft -= 8;
-  }
+  let left = player.offsetLeft;
 
-  if (moveRight) {
-    playerLeft += 8;
-  }
+  if (moveLeft)
+    left -= 8;
+
+  if (moveRight)
+    left += 8;
 
   const maxLeft =
-    game.clientWidth - player.offsetWidth - 20;
+    game.clientWidth -
+    player.offsetWidth -
+    20;
 
-  if (playerLeft < 20) {
-    playerLeft = 20;
-  }
+  if (left < 20)
+    left = 20;
 
-  if (playerLeft > maxLeft) {
-    playerLeft = maxLeft;
-  }
+  if (left > maxLeft)
+    left = maxLeft;
 
-  player.style.left = playerLeft + "px";
+  player.style.left =
+    left + "px";
 
 
-  /* حركة الخطوط */
+  /* خطوط الطريق */
+
   lines.forEach(line => {
 
-    let top = line.offsetTop;
+    let top =
+      line.offsetTop + speed;
 
-    top += speed;
-
-    if (top > game.clientHeight) {
+    if (top > game.clientHeight)
       top = -80;
-    }
 
-    line.style.top = top + "px";
+    line.style.top =
+      top + "px";
   });
 
 
-  /* حركة السيارات */
+  /* السيارات */
+
   enemies.forEach((enemy, index) => {
 
-    let top = enemy.offsetTop;
+    let top =
+      enemy.offsetTop + speed;
 
-    top += speed;
+    enemy.style.top =
+      top + "px";
 
-    enemy.style.top = top + "px";
 
     if (top > game.clientHeight) {
 
       enemy.remove();
+
       enemies.splice(index, 1);
 
       score++;
@@ -471,188 +708,25 @@ function gameLoop() {
       scoreText.textContent =
         "🏆 " + score;
 
-      if (score % 5 === 0) {
-        speed += 0.5;
-      }
+      if (score % 5 === 0)
+        speed += .5;
     }
 
-    /* تصادم */
+
     if (isColliding(player, enemy)) {
 
       enemy.remove();
+
       enemies.splice(index, 1);
 
       loseLife();
     }
+
   });
 
 
-  /* حركة العملات */
+  /* العملات */
+
   coins.forEach((coin, index) => {
 
-    let top = coin.offsetTop;
-
-    top += speed;
-
-    coin.style.top = top + "px";
-
-    if (top > game.clientHeight) {
-
-      coin.remove();
-      coins.splice(index, 1);
-    }
-
-    /* جمع العملة */
-    if (isColliding(player, coin)) {
-
-      coin.remove();
-      coins.splice(index, 1);
-
-      coinCount++;
-
-      coinsText.textContent =
-        "🪙 " + coinCount;
-    }
-  });
-
-
-  animation = requestAnimationFrame(gameLoop);
-}
-
-
-/* خسارة حياة */
-function loseLife() {
-
-  lives--;
-
-  livesText.textContent =
-    "❤️".repeat(lives) +
-    "🖤".repeat(3 - lives);
-
-  if (lives <= 0) {
-    endGame();
-  }
-}
-
-
-/* التصادم */
-function isColliding(a, b) {
-
-  if (!a || !b) return false;
-
-  const aRect = a.getBoundingClientRect();
-  const bRect = b.getBoundingClientRect();
-
-  return !(
-    aRect.bottom < bRect.top ||
-    aRect.top > bRect.bottom ||
-    aRect.right < bRect.left ||
-    aRect.left > bRect.right
-  );
-}
-
-
-/* نهاية اللعبة */
-function endGame() {
-
-  gameRunning = false;
-
-  cancelAnimationFrame(animation);
-
-  clearTimeout(enemyTimer);
-  clearTimeout(coinTimer);
-
-  finalScore.textContent =
-    "🏆 النقاط: " + score;
-
-  finalCoins.textContent =
-    "🪙 العملات: " + coinCount;
-
-  gameOver.style.display = "flex";
-}
-
-
-/* بدء */
-play.onclick = startGame;
-
-
-/* إعادة */
-restart.onclick = startGame;
-
-
-/* لوحة المفاتيح */
-document.addEventListener("keydown", function(e) {
-
-  if (e.key === "ArrowLeft") {
-    moveLeft = true;
-  }
-
-  if (e.key === "ArrowRight") {
-    moveRight = true;
-  }
-
-});
-
-
-document.addEventListener("keyup", function(e) {
-
-  if (e.key === "ArrowLeft") {
-    moveLeft = false;
-  }
-
-  if (e.key === "ArrowRight") {
-    moveRight = false;
-  }
-
-});
-
-
-/* الهاتف */
-leftButton.addEventListener(
-  "touchstart",
-  function(e) {
-    e.preventDefault();
-    moveLeft = true;
-  },
-  { passive: false }
-);
-
-leftButton.addEventListener(
-  "touchend",
-  function(e) {
-    e.preventDefault();
-    moveLeft = false;
-  },
-  { passive: false }
-);
-
-rightButton.addEventListener(
-  "touchstart",
-  function(e) {
-    e.preventDefault();
-    moveRight = true;
-  },
-  { passive: false }
-);
-
-rightButton.addEventListener(
-  "touchend",
-  function(e) {
-    e.preventDefault();
-    moveRight = false;
-  },
-  { passive: false }
-);
-
-
-/* الضغط بالماوس */
-leftButton.onmousedown = () => moveLeft = true;
-leftButton.onmouseup = () => moveLeft = false;
-
-rightButton.onmousedown = () => moveRight = true;
-rightButton.onmouseup = () => moveRight = false;
-
-</script>
-
-</body>
-</html>
+    let top
